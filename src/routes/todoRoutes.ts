@@ -1,9 +1,9 @@
 import express from "express";
+import * as todoController from "../controllers/todoController";
 
 const router = express.Router();
 
-router.get("/todos", (req, res) => {
-  res.send("Hellow World");
-});
+router.get("/todos", todoController.getTodos);
+router.post("/todos", todoController.createTodo);
 
 export default router;
