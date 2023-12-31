@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import pool from "../db/pool";
-import { getTodosQuery, createTodoQuery } from "../db/queries/todoQueries";
+import {
+  getTodosQuery,
+  createTodoQuery,
+  updateTodoQuery,
+  deleteTodoQuery,
+} from "../db/queries/todoQueries";
 
 export const getTodos = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -28,5 +33,39 @@ export const createTodo = async (
     res.json(result.rows[0]);
   } catch (error) {
     console.error("Error creating todo", error);
+  }
+};
+
+export const updateTodo = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { todoId } = req.params;
+  const { isCompleted, isFavorite, todoText } = req.body;
+
+  try {
+    const result = await pool.query(updateTodoQuery, [
+      todoText,
+      isCompleted,
+      isFavorite,
+      todoId,
+    ]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error updating todo", error);
+  }
+};
+
+export const deleteTodo = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { todoId } = req.params;
+
+  try {
+    const result = await pool.query(deleteTodoQuery, [todoId]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error deleting todo", error);
   }
 };
