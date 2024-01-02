@@ -67,14 +67,7 @@ const authService = {
     const result = await pool.query(loginQuery, [username]);
     const user: User = result.rows[0];
 
-    console.log(password, user.password);
-    try {
-      const compare = await bcrypt.compare(password, user.password);
-    } catch (error: unknown) {
-      console.log(error);
-    }
-
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await bcrypt.compare(password, user.password_hash))) {
       throw new Error("Invalid login credentials");
     }
 
