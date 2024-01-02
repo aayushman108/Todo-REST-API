@@ -7,18 +7,19 @@ import {
   loginQuery,
   checkEmailQuery,
   checkUsernameQuery,
+  getUserQuery,
 } from "../db/queries/authQueries";
 
 const generateAccessToken = (user: User): string => {
   return jwt.sign(
     { userId: user.userId, username: user.username },
-    "your-secret-key",
+    process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "15m" }
   );
 };
 
 const generateRefreshToken = (): string => {
-  return jwt.sign({}, "your-refresh-secret-key", { expiresIn: "7d" });
+  return jwt.sign({}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 };
 
 const authService = {
@@ -27,20 +28,19 @@ const authService = {
     email: string,
     password: string
   ): Promise<{ accessToken: string; refreshToken: string }> => {
-    // Basic input validation
-    if (!username || !email || !password) {
-      throw new Error("Username, email, and password are required.");
-    }
+    // if (!username || !email || !password) {
+    //   throw new Error("Username, email, and password are required.");
+    // }
 
-    const emailExists = await authService.checkEmailExists(email);
-    if (emailExists) {
-      throw new Error("Email is already taken.");
-    }
+    // const emailExists = await authService.checkEmailExists(email);
+    // if (emailExists) {
+    //   throw new Error("Email is already taken.");
+    // }
 
-    const usernameExists = await authService.checkUsernameExists(username);
-    if (usernameExists) {
-      throw new Error("Username is already taken.");
-    }
+    // const usernameExists = await authService.checkUsernameExists(username);
+    // if (usernameExists) {
+    //   throw new Error("Username is already taken.");
+    // }
 
     const saltRounds = 10;
     const salt = await bcrypt.genSalt(saltRounds);
@@ -64,15 +64,20 @@ const authService = {
     username: string,
     password: string
   ): Promise<{ accessToken: string; refreshToken: string }> => {
-    // Implement user login logic
     const result = await pool.query(loginQuery, [username]);
     const user: User = result.rows[0];
 
-    if (!user || !(await bcrypt.compare(password, user.password + user.salt))) {
+    console.log(password, user.password);
+    try {
+      const compare = await bcrypt.compare(password, user.password);
+    } catch (error: unknown) {
+      console.log(error);
+    }
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new Error("Invalid login credentials");
     }
 
-    // Generate tokens
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken();
 
@@ -87,6 +92,49 @@ const authService = {
   checkUsernameExists: async (username: string): Promise<boolean> => {
     const result = await pool.query(checkUsernameQuery, [username]);
     return result.rows.length > 0;
+  },
+
+  refresh: async (refreshToken: string): Promise<{ accessToken: string }> => {
+    try {
+      if (!refreshToken) {
+        throw new Error("Refresh token is missing.");
+      }
+
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      ) as {
+        userId: number;
+        username: string;
+      };
+
+      const user = await authService.getUserById(decoded.userId);
+
+      // If validation is successful and user data is retrieved, generate a new access token
+      if (user) {
+        const accessToken = generateAccessToken(user);
+        return { accessToken };
+      } else {
+        throw new Error("User not found.");
+      }
+    } catch (error) {
+      throw new Error("Invalid refresh token");
+    }
+  },
+
+  getUserById: async (userId: number): Promise<User | null> => {
+    try {
+      const result = await pool.query(getUserQuery, [userId]);
+      return result.rows[0] || null;
+    } catch (error: unknown) {
+      const specificError = error as Error;
+      console.error("Error fetching user by ID:", specificError.message);
+      return null;
+    }
+  },
+
+  logout: async (userId: number): Promise<void> => {
+    console.log(`User ${userId} logged out`);
   },
 };
 

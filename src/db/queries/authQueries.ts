@@ -6,3 +6,5 @@ export const loginQuery = "SELECT * FROM users WHERE username = $1";
 export const checkEmailQuery = "SELECT * FROM users WHERE email = $1";
 
 export const checkUsernameQuery = "SELECT * FROM users WHERE username = $1";
+
+export const getUserQuery = "SELECT * FROM users WHERE user_id = $1";
