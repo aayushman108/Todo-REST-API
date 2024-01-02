@@ -9,45 +9,45 @@ import {
 } from "../db/queries/todoQueries";
 
 const todoService = {
-  getTodos: async (userId: number): Promise<Todo[]> => {
-    const result = await pool.query(getTodosQuery, [userId]);
+  getTodos: async (user_id: number): Promise<Todo[]> => {
+    const result = await pool.query(getTodosQuery, [user_id]);
     return result.rows;
   },
 
   createTodo: async (
-    userId: number,
-    todoText: string,
-    dueDate: Date,
-    isCompleted: boolean,
-    isFavorite: boolean
+    user_id: number,
+    todo_text: string,
+    due_date: Date,
+    is_completed: boolean,
+    is_favorite: boolean
   ): Promise<Todo> => {
     const result = await pool.query(createTodoQuery, [
-      userId,
-      todoText,
-      dueDate,
-      isCompleted,
-      isFavorite,
+      user_id,
+      todo_text,
+      due_date,
+      is_completed,
+      is_favorite,
     ]);
     return result.rows[0];
   },
 
   updateTodo: async (
-    todoId: number,
-    todoText: string,
-    isCompleted: boolean,
-    isFavorite: boolean
+    todo_id: number,
+    todo_text: string,
+    is_completed: boolean,
+    is_favorite: boolean
   ): Promise<Todo> => {
     const result = await pool.query(updateTodoQuery, [
-      todoText,
-      isCompleted,
-      isFavorite,
-      todoId,
+      todo_text,
+      is_completed,
+      is_favorite,
+      todo_id,
     ]);
     return result.rows[0];
   },
 
-  deleteTodo: async (todoId: number): Promise<void> => {
-    await pool.query(deleteTodoQuery, [todoId]);
+  deleteTodo: async (todo_id: number): Promise<void> => {
+    await pool.query(deleteTodoQuery, [todo_id]);
   },
 };
 

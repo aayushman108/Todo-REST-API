@@ -1,9 +1,9 @@
 export interface Todo {
-  todoId: number;
-  userId: number;
-  todoText: string;
-  dueDate: Date;
-  isCompleted: boolean;
-  isFavorite: boolean;
-  createdAt: Date;
+  todo_id: number;
+  user_id: number;
+  todo_text: string;
+  due_date: Date;
+  is_completed: boolean;
+  is_favorite: boolean;
+  created_at: Date;
 }

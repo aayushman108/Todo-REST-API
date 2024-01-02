@@ -1,9 +1,9 @@
 export interface User {
-  userId: number;
+  user_id: number;
   username: string;
   email: string;
   password_hash: string;
-  isAdmin: boolean;
-  createdAt: Date;
+  is_admin: boolean;
+  created_at: Date;
   salt: string;
 }

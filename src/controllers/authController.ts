@@ -9,7 +9,6 @@ export const signUp = async (req: Request, res: Response) => {
       email,
       password
     );
-    res.send("Hellow World");
     res.json({ accessToken, refreshToken });
   } catch (error: unknown) {
     const specificError = error as Error;
@@ -49,14 +48,14 @@ export const refresh = async (req: Request, res: Response) => {
 
 export const logout = async (req: Request, res: Response) => {
   try {
-    const userId = 1;
+    const user_id = 1;
 
     // Basic input validation (optional for logout)
-    if (!userId) {
+    if (!user_id) {
       return res.status(400).json({ error: "User ID is required." });
     }
 
-    await authService.logout(userId);
+    await authService.logout(user_id);
     res.json({ message: "Logout successful" });
   } catch (error: unknown) {
     const specificError = error as Error;

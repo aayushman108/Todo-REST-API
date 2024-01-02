@@ -12,7 +12,7 @@ import {
 
 const generateAccessToken = (user: User): string => {
   return jwt.sign(
-    { userId: user.userId, username: user.username },
+    { user_id: user.user_id, username: user.username },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "15m" }
   );
@@ -44,12 +44,12 @@ const authService = {
 
     const saltRounds = 10;
     const salt = await bcrypt.genSalt(saltRounds);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const password_hash = await bcrypt.hash(password, salt);
 
     const result = await pool.query(signupQuery, [
       username,
       email,
-      hashedPassword,
+      password_hash,
       salt,
     ]);
     const user: User = result.rows[0];
@@ -97,11 +97,11 @@ const authService = {
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET
       ) as {
-        userId: number;
+        user_id: number;
         username: string;
       };
 
-      const user = await authService.getUserById(decoded.userId);
+      const user = await authService.getUserById(decoded.user_id);
 
       // If validation is successful and user data is retrieved, generate a new access token
       if (user) {
@@ -115,9 +115,9 @@ const authService = {
     }
   },
 
-  getUserById: async (userId: number): Promise<User | null> => {
+  getUserById: async (user_id: number): Promise<User | null> => {
     try {
-      const result = await pool.query(getUserQuery, [userId]);
+      const result = await pool.query(getUserQuery, [user_id]);
       return result.rows[0] || null;
     } catch (error: unknown) {
       const specificError = error as Error;
@@ -126,8 +126,8 @@ const authService = {
     }
   },
 
-  logout: async (userId: number): Promise<void> => {
-    console.log(`User ${userId} logged out`);
+  logout: async (user_id: number): Promise<void> => {
+    console.log(`User ${user_id} logged out`);
   },
 };
 

@@ -4,7 +4,7 @@ import { authenticateToken } from "../middlewares/authMiddleware";
 
 const router = express.Router();
 
-//router.use(authenticateToken);
+router.use(authenticateToken);
 router.get("/todos", todoController.getTodos);
 router.post("/todos", todoController.createTodo);
 router.put("/todos/:todoId", todoController.updateTodo);

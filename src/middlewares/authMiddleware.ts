@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 const jwtSecretKey = process.env.ACCESS_TOKEN_SECRET || "";
 
@@ -10,7 +12,6 @@ export const authenticateToken = (
 ) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
   }
@@ -20,8 +21,7 @@ export const authenticateToken = (
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    console.log(req);
-    //req.user = user;
+    // req.user = user;
     next();
   });
 };
