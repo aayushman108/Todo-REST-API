@@ -1,42 +1,58 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import todoService from "../services/todoService";
+import { todoSchema } from "../schemas/todoSchema";
 
 export const getTodos = async (req: Request, res: Response) => {
   try {
-    const userId = 1;
-    const todos = await todoService.getTodos(userId);
+    const user_id = 1;
+    const todos = await todoService.getTodos(user_id);
     res.json(todos);
   } catch (error) {
     console.error("Error getting todos", error);
   }
 };
 
-export const createTodo = async (req: Request, res: Response) => {
+export const createTodo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const userId = 1;
-    const { todoText, dueDate, isCompleted, isFavorite } = req.body;
+    const user_id = 1;
+    const { todo_text, due_date, is_completed, is_favorite } = req.body;
+
+    const input = { todo_text, due_date, is_completed, is_favorite };
+    const { error } = todoSchema.validate(input);
+
+    if (error) {
+      return res
+        .status(400)
+        .json({ errors: error.details.map((err) => err.message) });
+    }
+
     const todo = await todoService.createTodo(
-      userId,
-      todoText,
-      dueDate,
-      isCompleted,
-      isFavorite
+      user_id,
+      todo_text,
+      due_date,
+      is_completed,
+      is_favorite
     );
     res.json(todo);
   } catch (error) {
     console.error("Error creating todo", error);
+    next(error);
   }
 };
 
 export const updateTodo = async (req: Request, res: Response) => {
   try {
-    const todoId = +req.params.todoId;
-    const { isCompleted, isFavorite, todoText } = req.body;
+    const todo_id = +req.params.todoId;
+    const { is_completed, is_favorite, todo_text } = req.body;
     const todo = await todoService.updateTodo(
-      todoId,
-      todoText,
-      isCompleted,
-      isFavorite
+      todo_id,
+      todo_text,
+      is_completed,
+      is_favorite
     );
     res.json(todo);
   } catch (error) {
@@ -46,8 +62,8 @@ export const updateTodo = async (req: Request, res: Response) => {
 
 export const deleteTodo = async (req: Request, res: Response) => {
   try {
-    const todoId = +req.params.todoId;
-    await todoService.deleteTodo(todoId);
+    const todo_id = +req.params.todoId;
+    await todoService.deleteTodo(todo_id);
     res.json({ message: "Task deleted successfully" });
   } catch (error) {
     console.error("Error deleting todo", error);

@@ -1,9 +1,22 @@
 import { Request, Response } from "express";
 import authService from "../services/authService";
+import { userSchema } from "../schemas/userSchema";
 
 export const signUp = async (req: Request, res: Response) => {
   try {
     const { username, email, password } = req.body;
+
+    const { error } = userSchema.validate(
+      { username, email, password },
+      { abortEarly: false }
+    );
+
+    if (error) {
+      return res
+        .status(400)
+        .json({ errors: error.details.map((err) => err.message) });
+    }
+
     const { accessToken, refreshToken } = await authService.signUp(
       username,
       email,
