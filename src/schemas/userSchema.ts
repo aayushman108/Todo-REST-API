@@ -9,8 +9,9 @@ export const userSchema = Joi.object({
       )
     )
     .required()
-    .message(
-      "Password must be at least 8 characters long and include at least one special character and one capital letter"
-    ),
+    .messages({
+      "any.only":
+        "Password must be at least 8 characters long and include at least one special character and one capital letter",
+    }),
   email: Joi.string().email().required(),
 });
